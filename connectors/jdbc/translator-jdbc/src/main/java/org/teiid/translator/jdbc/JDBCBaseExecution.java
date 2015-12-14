@@ -118,7 +118,7 @@ public abstract class JDBCBaseExecution implements Execution  {
         if (translatedCommand.getSql() != null && LogManager.isMessageToBeRecorded(LogConstants.CTX_CONNECTOR, MessageLevel.DETAIL)) {
             LogManager.logDetail(LogConstants.CTX_CONNECTOR, "Source-specific command: " + translatedCommand.getSql()); //$NON-NLS-1$
         }
-        context.logCommand(translatedCommand.getSql());
+        //context.logCommand(translatedCommand.getSql());
         return translatedCommand;
     }
 
