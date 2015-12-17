@@ -1,14 +1,23 @@
 package org.teiid.translator.jdbc.exasol;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.CHAR;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.DATE;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.DOUBLE;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.INTEGER;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.STRING;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.TIMESTAMP;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.teiid.metadata.index.MetadataConstants.DATATYPE_TYPES;
+import org.apache.bcel.verifier.statics.LONG_Upper;
+import org.teiid.core.types.DataTypeManager;
 import org.teiid.translator.SourceSystemFunctions;
 import org.teiid.translator.Translator;
 import org.teiid.translator.TranslatorException;
 import org.teiid.translator.jdbc.AliasModifier;
+import org.teiid.translator.jdbc.ConvertModifier;
+import org.teiid.translator.jdbc.FunctionModifier;
 import org.teiid.translator.jdbc.JDBCExecutionFactory;
-import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.*;
 
 @Translator(name="exasol", description="A translator for EXASOL Analytic Database Server")
 
@@ -53,6 +62,33 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
    public static final String UNICODE = "UNICODE";
    public static final String UNICODECHR = "UNICODECHR";
    public static final String UPPER = "UPPER";
+   
+   /*
+    * Date/Time functions
+    */
+   public static final String ADD_DAYS = "ADD_DAYS";
+   public static final String ADD_HOURS = "ADD_HOURS";
+   public static final String ADD_MINUTES = "ADD_MINUTES";
+   public static final String ADD_MONTHS = "ADD_MONTHS";
+   public static final String ADD_SECONDS = "ADD_SECONDS";
+   public static final String ADD_WEEKS = "ADD_WEEKS";
+   public static final String ADD_YEARS = "ADD_YEARS";
+   public static final String DATE_TRUNC = "DATE_TRUNC";
+   public static final String DAY = "DAY";
+   public static final String DAYS_BETWEEN = "DAYS_BETWEEN";
+   public static final String FROM_POSIX_TIME = "FROM_POSIX_TIME";
+   public static final String HOURS_BETWEEN = "HOURS_BETWEEN";
+   public static final String MINUTES_BETWEEN = "MINUTES_BETWEEN";
+   public static final String MONTHS_BETWEEN = "MONTHS_BETWEEN";
+   public static final String POSIX_TIME = "POSIX_TIME";
+   public static final String ROUND = "ROUND";
+   public static final String SECONDS_BETWEEN = "SECONDS_BETWEEN";
+   public static final String TO_CHAR = "TO_CHAR";
+   public static final String TO_DATE = "TO_DATE";
+   public static final String TO_TIMESTAMP = "TO_TIMESTAMP";
+   public static final String TRUNC = "TRUNC";
+   public static final String TRUNCATE = "TRUNCATE";
+   public static final String YEARS_BETWEEN = "YEARS_BETWEEN";
    
    @Override
    public void start() throws TranslatorException {
@@ -107,6 +143,63 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         addPushDownFunction(EXASOL, UNICODE, INTEGER, CHAR);
         addPushDownFunction(EXASOL, UNICODECHR, CHAR, INTEGER);
         registerFunctionModifier(SourceSystemFunctions.UCASE, new AliasModifier(UPPER));
+   
+        /*
+         * Date/Time functions
+         */
+        addPushDownFunction(EXASOL, ADD_DAYS, DATE, DATE, INTEGER);
+        addPushDownFunction(EXASOL, ADD_DAYS, TIMESTAMP, TIMESTAMP, INTEGER);
+        addPushDownFunction(EXASOL, ADD_HOURS, TIMESTAMP, TIMESTAMP, INTEGER);
+        addPushDownFunction(EXASOL, ADD_MINUTES, TIMESTAMP, TIMESTAMP, INTEGER);
+        addPushDownFunction(EXASOL, ADD_MONTHS, DATE, DATE, INTEGER);
+        addPushDownFunction(EXASOL, ADD_MONTHS, TIMESTAMP, TIMESTAMP, INTEGER);
+        addPushDownFunction(EXASOL, ADD_SECONDS, TIMESTAMP, TIMESTAMP, DOUBLE);
+        addPushDownFunction(EXASOL, ADD_WEEKS, DATE, DATE, INTEGER);
+        addPushDownFunction(EXASOL, ADD_WEEKS, TIMESTAMP, TIMESTAMP, INTEGER);
+        addPushDownFunction(EXASOL, ADD_YEARS, DATE, DATE, INTEGER);
+        addPushDownFunction(EXASOL, ADD_YEARS, TIMESTAMP, TIMESTAMP, INTEGER);
+        registerFunctionModifier(SourceSystemFunctions.CURDATE, new AliasModifier(UPPER));
+        addPushDownFunction(EXASOL, DATE_TRUNC, DATE, STRING, DATE);
+        addPushDownFunction(EXASOL, DATE_TRUNC, TIMESTAMP, STRING, TIMESTAMP);
+        registerFunctionModifier(SourceSystemFunctions.DAYOFMONTH, new AliasModifier(DAY));
+        addPushDownFunction(EXASOL, DAYS_BETWEEN, INTEGER, DATE, DATE);
+        addPushDownFunction(EXASOL, DAYS_BETWEEN, INTEGER, TIMESTAMP, TIMESTAMP);
+        registerFunctionModifier("FROM_UNIXTIME", new AliasModifier(FROM_POSIX_TIME));
+        addPushDownFunction(EXASOL, HOURS_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, MINUTES_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, MONTHS_BETWEEN, DOUBLE, DATE, DATE);
+        addPushDownFunction(EXASOL, MONTHS_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, POSIX_TIME, DOUBLE, TIMESTAMP);
+        addPushDownFunction(EXASOL, ROUND, DATE, DATE);
+        addPushDownFunction(EXASOL, ROUND, DATE, DATE, STRING);
+        addPushDownFunction(EXASOL, ROUND, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, ROUND, TIMESTAMP, TIMESTAMP, STRING);
+        addPushDownFunction(EXASOL, SECONDS_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
+        registerFunctionModifier("FORMATDATE", new AliasModifier(TO_CHAR));
+        registerFunctionModifier(SourceSystemFunctions.FORMATTIMESTAMP, new AliasModifier(TO_CHAR));
+        registerFunctionModifier("PARSEDATE", new AliasModifier(TO_DATE));
+        registerFunctionModifier(SourceSystemFunctions.PARSETIMESTAMP, new AliasModifier(TO_TIMESTAMP));
+        addPushDownFunction(EXASOL, TRUNC, DATE, DATE);
+        addPushDownFunction(EXASOL, TRUNC, DATE, DATE, STRING);
+        addPushDownFunction(EXASOL, TRUNC, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, TRUNC, TIMESTAMP, TIMESTAMP, STRING);
+        addPushDownFunction(EXASOL, TRUNCATE, DATE, DATE);
+        addPushDownFunction(EXASOL, TRUNCATE, DATE, DATE, STRING);
+        addPushDownFunction(EXASOL, TRUNCATE, TIMESTAMP, TIMESTAMP);
+        addPushDownFunction(EXASOL, TRUNCATE, TIMESTAMP, TIMESTAMP, STRING);
+        addPushDownFunction(EXASOL, YEARS_BETWEEN, DOUBLE, DATE, DATE);
+        addPushDownFunction(EXASOL, YEARS_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
+   
+        /*
+         * Conversion functions
+         */
+        ConvertModifier convertModifier = new ConvertModifier();
+        convertModifier.addTypeMapping("VARCHAR(4000)", FunctionModifier.STRING);  //$NON-NLS-1$
+        convertModifier.addTypeMapping("DECIMAL(3,0)", FunctionModifier.BYTE);  //$NON-NLS-1$
+        convertModifier.addTypeMapping("DECIMAL(5)", FunctionModifier.SHORT);
+        convertModifier.addTypeMapping("DECIMAL(10,0)", FunctionModifier.LONG);
+        convertModifier.addTypeMapping("DOUBLE PRECISION", FunctionModifier.BIGINTEGER);
+        
    }
 
     @Override
@@ -187,6 +280,39 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         supportedFunctions.add(SourceSystemFunctions.TRANSLATE);
         //TRIM
         supportedFunctions.add(SourceSystemFunctions.UCASE);
+        
+        /*
+         * Date/Time functions
+         */
+        //CONVERT_TZ
+        supportedFunctions.add(SourceSystemFunctions.CURDATE);
+        //CURRENT_DATE
+        //CURRENT_TIMESTAMP
+        //DBTIMEZONE
+        //EXTRACT
+        supportedFunctions.add("FROM_UNIXTIME");
+        //HOUR
+        //LOCALTIMESTAMP
+        //MINUTE
+        supportedFunctions.add(SourceSystemFunctions.MONTH);
+        supportedFunctions.add(SourceSystemFunctions.NOW);
+        //NUMTODSINTERVAL
+        //NUMTOYMINTERVAL
+        //SECOND
+        //SESSIONTIMEZONE
+        //SYSDATE
+        //SYSTIMESTAMP
+        supportedFunctions.add("FORMATDATE");
+        supportedFunctions.add("PARSEDATE");
+        //TO_DSINTERVAL
+        supportedFunctions.add(SourceSystemFunctions.PARSETIMESTAMP);
+        //TO_YMINTERVAL
+        supportedFunctions.add(SourceSystemFunctions.WEEK);
+        supportedFunctions.add(SourceSystemFunctions.YEAR);
+        
+        /*
+         * Conversion functions
+         */
         
         return supportedFunctions;
     }
