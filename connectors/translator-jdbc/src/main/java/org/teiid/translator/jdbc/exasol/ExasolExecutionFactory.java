@@ -9,11 +9,10 @@ import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.TIMESTAMP;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.bcel.verifier.statics.LONG_Upper;
-import org.teiid.core.types.DataTypeManager;
 import org.teiid.translator.SourceSystemFunctions;
 import org.teiid.translator.Translator;
 import org.teiid.translator.TranslatorException;
+import org.teiid.translator.TypeFacility.RUNTIME_CODES;
 import org.teiid.translator.jdbc.AliasModifier;
 import org.teiid.translator.jdbc.ConvertModifier;
 import org.teiid.translator.jdbc.FunctionModifier;
@@ -191,15 +190,18 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         addPushDownFunction(EXASOL, YEARS_BETWEEN, DOUBLE, TIMESTAMP, TIMESTAMP);
    
         /*
-         * Conversion functions
+         * Convert functions
          */
+
         ConvertModifier convertModifier = new ConvertModifier();
+        
         convertModifier.addTypeMapping("VARCHAR(4000)", FunctionModifier.STRING);  //$NON-NLS-1$
         convertModifier.addTypeMapping("DECIMAL(3,0)", FunctionModifier.BYTE);  //$NON-NLS-1$
         convertModifier.addTypeMapping("DECIMAL(5)", FunctionModifier.SHORT);
         convertModifier.addTypeMapping("DECIMAL(10,0)", FunctionModifier.LONG);
-        convertModifier.addTypeMapping("DOUBLE PRECISION", FunctionModifier.BIGINTEGER);
         
+        registerFunctionModifier(SourceSystemFunctions.CONVERT, convertModifier);
+    	
    }
 
     @Override
@@ -313,8 +315,54 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         /*
          * Conversion functions
          */
-        
+        supportedFunctions.add(SourceSystemFunctions.CONVERT);
+   
         return supportedFunctions;
     }
-
+    
+    @Override
+    public boolean supportsSearchedCaseExpressions() {
+    	return false;
+    }
+    
+    @Override
+    public boolean supportsQuantifiedCompareCriteriaSome() {
+        return false;
+    }
+    
+    @Override
+    public boolean supportsIntersect() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsExcept() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsSelectWithoutFrom() {
+		return true;
+	}
+    
+    @Override
+    public boolean supportsGroupByRollup() {
+		return true;
+	}
+    
+    @Override
+    public boolean supportsArrayType() {
+		return true;
+	}
+    
+    @Override
+    public boolean supportsConvert(int fromType, int toType) {
+		if (fromType == RUNTIME_CODES.OBJECT || fromType == RUNTIME_CODES.BIG_INTEGER || fromType == RUNTIME_CODES.VARBINARY 
+    || fromType == RUNTIME_CODES.BIG_DECIMAL || fromType == RUNTIME_CODES.TIME || fromType == RUNTIME_CODES.BLOB || fromType == RUNTIME_CODES.XML
+    || toType == RUNTIME_CODES.OBJECT || toType == RUNTIME_CODES.BIG_INTEGER || toType == RUNTIME_CODES.VARBINARY 
+    || toType == RUNTIME_CODES.BIG_DECIMAL || toType == RUNTIME_CODES.TIME || toType == RUNTIME_CODES.BLOB || toType == RUNTIME_CODES.XML) {
+			return false;
+		}
+		return true;
+	}
 }
