@@ -331,6 +331,11 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
     }
     
     @Override
+    public boolean supportsQuantifiedCompareCriteriaAll() {
+        return false;
+    }
+    
+    @Override
     public boolean supportsIntersect() {
     	return true;
     }
@@ -365,4 +370,39 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
 		}
 		return true;
 	}
+    
+    @Override
+    public boolean supportsCommonTableExpressions() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsBatchedUpdates() {
+    	return false;
+    }
+    
+    @Override
+    public boolean supportsRowLimit() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsExistsCriteria() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsInCriteriaSubquery() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsCompareCriteriaOrdered() {
+    	return true;
+    }
+    
+    @Override
+    public boolean supportsInlineViews() {
+    	return true;
+    }
 }
