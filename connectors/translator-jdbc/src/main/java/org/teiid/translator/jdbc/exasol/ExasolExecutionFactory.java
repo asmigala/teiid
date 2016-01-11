@@ -54,7 +54,9 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
    public static final String REGEXP_INSTR = "REGEXP_INSTR";
    public static final String REGEXP_REPLACE = "REGEXP_REPLACE";
    public static final String REGEXP_SUBSTR = "REGEXP_SUBSTR";
+   public static final String REPLACE = "REPLACE";
    public static final String REVERSE = "REVERSE";
+   public static final String RTRIM = "RTRIM";
    public static final String SOUNDEX = "SOUNDEX";
    public static final String SPACE = "SPACE";
    public static final String TO_NUMBER = "TO_NUMBER";
@@ -97,7 +99,6 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         /*
          * Numeric functions
          */
-        registerFunctionModifier(SourceSystemFunctions.CEILING, new AliasModifier(CEIL));
         registerFunctionModifier(SourceSystemFunctions.LOG, new AliasModifier(LN));
         /*
          * Bitwise functions
@@ -111,13 +112,13 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
          */
         addPushDownFunction(EXASOL, BIT_LENGTH, INTEGER, STRING);
         registerFunctionModifier(SourceSystemFunctions.LENGTH, new AliasModifier(CHARACTER_LENGTH));
-        registerFunctionModifier(SourceSystemFunctions.CHAR, new AliasModifier(CHR));
         addPushDownFunction(EXASOL, COLOGNE_PHONETIC, STRING, STRING);
         addPushDownFunction(EXASOL, EDIT_DISTANCE, INTEGER, STRING, STRING);
         addPushDownFunction(EXASOL, INSTR, INTEGER, STRING, STRING);
         addPushDownFunction(EXASOL, INSTR, INTEGER, STRING, STRING, INTEGER);
         addPushDownFunction(EXASOL, INSTR, INTEGER, STRING, STRING, INTEGER, INTEGER);
         registerFunctionModifier(SourceSystemFunctions.LCASE, new AliasModifier(LOWER));
+        addPushDownFunction(EXASOL, LTRIM, STRING, STRING);
         addPushDownFunction(EXASOL, LTRIM, STRING, STRING, STRING);
         addPushDownFunction(EXASOL, MID, STRING, STRING, INTEGER);
         addPushDownFunction(EXASOL, MID, STRING, STRING, INTEGER, INTEGER);
@@ -132,9 +133,11 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         addPushDownFunction(EXASOL, REGEXP_SUBSTR, STRING, STRING, STRING);
         addPushDownFunction(EXASOL, REGEXP_SUBSTR, STRING, STRING, STRING, INTEGER);
         addPushDownFunction(EXASOL, REGEXP_SUBSTR, STRING, STRING, STRING, INTEGER, INTEGER);
-        addPushDownFunction(EXASOL, SourceSystemFunctions.REPLACE, STRING, STRING, STRING);
+        addPushDownFunction(EXASOL, REPLACE, STRING, STRING, STRING);
+        addPushDownFunction(EXASOL, REPLACE, STRING, STRING, STRING, STRING);
         addPushDownFunction(EXASOL, REVERSE, STRING, STRING);
-        addPushDownFunction(EXASOL, SourceSystemFunctions.RTRIM, STRING, STRING, STRING);
+        addPushDownFunction(EXASOL, RTRIM, STRING, STRING);
+        addPushDownFunction(EXASOL, RTRIM, STRING, STRING, STRING);
         addPushDownFunction(EXASOL, SOUNDEX, STRING, STRING);
         addPushDownFunction(EXASOL, SPACE, STRING, INTEGER);
         addPushDownFunction(EXASOL, TO_NUMBER, DOUBLE, STRING);
