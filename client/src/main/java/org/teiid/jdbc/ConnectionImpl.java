@@ -189,6 +189,9 @@ public class ConnectionImpl extends WrapperImpl implements TeiidConnection {
     }
     
     public void setExecutionProperty(String key, String value) {
+        if("client_encoding".equals(key)) {
+            System.out.println("======= ConnectionImpl.setExecutionProperty: " + value);
+        }
     	JDBCURL.addNormalizedProperty(key, value, getExecutionProperties());
     }
     

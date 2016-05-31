@@ -216,6 +216,7 @@ public class PgFrontendProtocol extends FrameDecoder {
         this.user = props.getProperty("user");
         this.databaseName = props.getProperty("database");
         String clientEncoding = props.getProperty("client_encoding", PgBackendProtocol.DEFAULT_ENCODING);
+        System.out.println("======= PgFrontendProtocol: " + clientEncoding);
         props.setProperty("client_encoding", clientEncoding);
         props.setProperty("default_transaction_isolation", "read committed");
         props.setProperty("DateStyle", "ISO");

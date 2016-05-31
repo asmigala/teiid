@@ -60,6 +60,7 @@ import org.teiid.jdbc.StatementImpl;
 import org.teiid.jdbc.TeiidDriver;
 import org.teiid.logging.LogConstants;
 import org.teiid.logging.LogManager;
+import org.teiid.logging.Logger;
 import org.teiid.net.TeiidURL;
 import org.teiid.net.socket.AuthenticationType;
 import org.teiid.net.socket.SocketServerConnection;
@@ -958,6 +959,7 @@ public class ODBCServerRemoteImpl implements ODBCServerRemote {
 	
 	private void setEncoding() {
 		String encoding = getEncoding();
+		System.out.println("======= ODBCServerRemoteImpl.setEncoding: " + encoding);
 		if (encoding != null) {
 			//this may be unnecessary
 			this.client.setEncoding(encoding, false);
