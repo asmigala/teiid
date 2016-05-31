@@ -215,6 +215,8 @@ public static class AnonSSLSocketFactory extends SSLSocketFactory {
 		URL location = Driver.class.getResource('/' + Driver.class.getName().replace('.', '/') + ".class");
         System.out.println("======= class url: " + location);
 
+        System.out.println("======= driver version: " + Driver.getVersion());
+        
 		Properties p = new Properties();
 		p.setProperty("user", "testuser");
 		p.setProperty("password", "testpassword");
