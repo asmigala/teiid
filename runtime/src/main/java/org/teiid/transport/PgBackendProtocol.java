@@ -336,6 +336,7 @@ public class PgBackendProtocol implements ChannelDownstreamHandler, ODBCClientRe
 	}
 	
 	public Charset getEncoding() {
+	    System.out.println("======= PgBackendProcol.getEncoding: " + encoding);
 		return encoding;
 	}
 
