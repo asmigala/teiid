@@ -32,8 +32,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.security.CodeSource;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Array;
 import java.sql.Connection;
@@ -204,6 +206,15 @@ public static class AnonSSLSocketFactory extends SSLSocketFactory {
 
 	private void connect(String database) throws SQLException {
 		Driver d = new Driver();
+		
+		CodeSource src = Driver.class.getProtectionDomain().getCodeSource();
+		if (src != null) {
+		    URL jar = src.getLocation();
+		    System.out.println("======= jar url: " + jar);
+		}
+		URL location = Driver.class.getResource('/' + Driver.class.getName().replace('.', '/') + ".class");
+        System.out.println("======= class url: " + location);
+
 		Properties p = new Properties();
 		p.setProperty("user", "testuser");
 		p.setProperty("password", "testpassword");
