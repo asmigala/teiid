@@ -1,6 +1,8 @@
 teiid
 =====
 
+###### Please note that this is an open source project which is *not officially supported* by EXASOL. We will try to help you as much as possible, but can't guarantee anything since this is not an official EXASOL product.
+
 Teiid is a data virtualization system that allows applications to use data from multiple, heterogeneous data stores.
 
 ## Useful Links
