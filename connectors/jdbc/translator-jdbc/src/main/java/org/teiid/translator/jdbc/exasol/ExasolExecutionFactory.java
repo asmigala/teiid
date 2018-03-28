@@ -1,14 +1,22 @@
 package org.teiid.translator.jdbc.exasol;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.BIG_DECIMAL;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.BOOLEAN;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.BYTE;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.CHAR;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.DATE;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.DOUBLE;
+import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.FLOAT;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.INTEGER;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.STRING;
 import static org.teiid.translator.TypeFacility.RUNTIME_NAMES.TIMESTAMP;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.teiid.language.Function;
+import org.teiid.language.LanguageObject;
+import org.teiid.translator.ExecutionContext;
 import org.teiid.translator.SourceSystemFunctions;
 import org.teiid.translator.Translator;
 import org.teiid.translator.TranslatorException;
@@ -17,12 +25,17 @@ import org.teiid.translator.jdbc.AliasModifier;
 import org.teiid.translator.jdbc.ConvertModifier;
 import org.teiid.translator.jdbc.FunctionModifier;
 import org.teiid.translator.jdbc.JDBCExecutionFactory;
+import org.teiid.translator.jdbc.oracle.ConcatFunctionModifier;
 
 @Translator(name="exasol", description="A translator for EXASOL Analytic Database Server")
 
 public class ExasolExecutionFactory extends JDBCExecutionFactory {
 
    public static final String EXASOL = "exasol";
+   private static final String TIME_FORMAT = "HH24:MI:SS"; //$NON-NLS-1$
+   private static final String DATE_FORMAT = "YYYY-MM-DD"; //$NON-NLS-1$
+   private static final String DATETIME_FORMAT = DATE_FORMAT + " " + TIME_FORMAT; //$NON-NLS-1$
+    private static final String TIMESTAMP_FORMAT = DATETIME_FORMAT + ".FF1";  //$NON-NLS-1$
 
    /*
     * Numeric functions
@@ -100,6 +113,9 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
          * Numeric functions
          */
         registerFunctionModifier(SourceSystemFunctions.LOG, new AliasModifier(LN));
+        addPushDownFunction(EXASOL, SourceSystemFunctions.SUBTRACT_OP, BOOLEAN, BOOLEAN, FLOAT);
+        addPushDownFunction(EXASOL, SourceSystemFunctions.SUBTRACT_OP, BOOLEAN, BOOLEAN, DOUBLE);
+        addPushDownFunction(EXASOL, SourceSystemFunctions.SUBTRACT_OP, BOOLEAN, BOOLEAN, FLOAT);
         /*
          * Bitwise functions
          */
@@ -145,7 +161,8 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         addPushDownFunction(EXASOL, UNICODE, INTEGER, CHAR);
         addPushDownFunction(EXASOL, UNICODECHR, CHAR, INTEGER);
         registerFunctionModifier(SourceSystemFunctions.UCASE, new AliasModifier(UPPER));
-   
+        registerFunctionModifier(SourceSystemFunctions.CONCAT, new ConcatFunctionModifier(getLanguageFactory()));
+
         /*
          * Date/Time functions
          */
@@ -199,10 +216,27 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
         ConvertModifier convertModifier = new ConvertModifier();
         
         convertModifier.addTypeMapping("VARCHAR(4000)", FunctionModifier.STRING);  //$NON-NLS-1$
-        convertModifier.addTypeMapping("DECIMAL(3,0)", FunctionModifier.BYTE);  //$NON-NLS-1$
+        convertModifier.addTypeMapping("DECIMAL(3)", FunctionModifier.BYTE);  //$NON-NLS-1$
         convertModifier.addTypeMapping("DECIMAL(5)", FunctionModifier.SHORT);
-        convertModifier.addTypeMapping("DECIMAL(10,0)", FunctionModifier.LONG);
-        
+        convertModifier.addTypeMapping("DECIMAL(10)", FunctionModifier.LONG);
+        convertModifier.addTypeMapping("FLOAT", FunctionModifier.FLOAT);
+
+        convertModifier.addConvert(FunctionModifier.BOOLEAN, FunctionModifier.DOUBLE, new FunctionModifier() {
+            @Override
+            public List<?> translate(Function function) {
+                return Arrays.asList("cast(", function.getParameters().get(0), " AS double)");  //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        });
+
+        convertModifier.addConvert(FunctionModifier.BOOLEAN, FunctionModifier.STRING, new FunctionModifier() {
+            @Override
+            public List<?> translate(Function function) {
+                return Arrays.asList("lcase(cast(", function.getParameters().get(0), " AS VARCHAR(4000)))");  //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        });
+
+        convertModifier.addConvert(FunctionModifier.TIMESTAMP, FunctionModifier.STRING, new ConvertModifier.FormatModifier("to_char", TIMESTAMP_FORMAT)); //$NON-NLS-1$
+
         registerFunctionModifier(SourceSystemFunctions.CONVERT, convertModifier);
     	
    }
@@ -407,5 +441,10 @@ public class ExasolExecutionFactory extends JDBCExecutionFactory {
     @Override
     public boolean supportsInlineViews() {
     	return true;
+    }
+
+    @Override
+    public List<?> translate(LanguageObject obj, ExecutionContext context) {
+        return super.translate(obj, context);
     }
 }

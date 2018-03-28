@@ -55,6 +55,7 @@ run-batch
 /subsystem=teiid/translator=access:add(module=org.jboss.teiid.translator.jdbc)
 /subsystem=teiid/translator=db2:add(module=org.jboss.teiid.translator.jdbc)
 /subsystem=teiid/translator=derby:add(module=org.jboss.teiid.translator.jdbc)
+/subsystem=teiid/translator=exasol:add(module=org.jboss.teiid.translator.jdbc)
 /subsystem=teiid/translator=h2:add(module=org.jboss.teiid.translator.jdbc)
 /subsystem=teiid/translator=hsql:add(module=org.jboss.teiid.translator.jdbc)
 /subsystem=teiid/translator=informix:add(module=org.jboss.teiid.translator.jdbc)
